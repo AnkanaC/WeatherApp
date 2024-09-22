@@ -1,10 +1,35 @@
-import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:myapp/hourly_forcast_item.dart';
-import 'package:myapp/additional_info_item.dart';
 
-class WeatherScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:myapp/additional_info_item.dart';
+import 'package:myapp/hourly_forcast_item.dart';
+import 'package:http/http.dart' as http;
+import 'package:myapp/secrets.dart';
+
+class WeatherScreen extends StatefulWidget {
   const WeatherScreen({super.key});
+
+  @override
+  State<WeatherScreen> createState() => _WeatherScreenState();
+}
+
+class _WeatherScreenState extends State<WeatherScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentWeather();
+  }
+
+  Future getCurrentWeather() async {
+    String cityName = 'London';
+    final result = await http.get(
+      Uri.parse(
+          'https://api.openweathermap.org/data/2.5/weather?q=$cityName&APPID=$openWeatherAPIKey'),
+    );
+
+    print(result.body);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +38,13 @@ class WeatherScreen extends StatelessWidget {
         title: const Text(
           'Weather App',
           style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              print("Refresh button pressed"); // Debug line
-            },
+            onPressed: () {},
             icon: const Icon(Icons.refresh),
           ),
         ],
@@ -31,8 +52,9 @@ class WeatherScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Main card
+            // main card
             SizedBox(
               width: double.infinity,
               child: Card(
@@ -43,23 +65,29 @@ class WeatherScreen extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    filter: ImageFilter.blur(
+                      sigmaX: 10,
+                      sigmaY: 10,
+                    ),
                     child: const Padding(
                       padding: EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          // Updated temperature value
                           Text(
-                            "72°F", // More realistic placeholder temperature
+                            '300K',
                             style: TextStyle(
-                              fontSize: 36,
+                              fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          SizedBox(height: 16),
-                          Icon(Icons.cloud, size: 64),
+                          SizedBox(height: 14),
+                          Icon(
+                            Icons.cloud,
+                            size: 64,
+                          ),
+                          SizedBox(height: 14),
                           Text(
-                            "Rain",
+                            'Rain',
                             style: TextStyle(
                               fontSize: 20,
                             ),
@@ -71,55 +99,74 @@ class WeatherScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Weather Forecast",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+            const Text(
+              'Weather Forecast',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-
-            // Fix: Removed const and updated SingleChildScrollView
-            SingleChildScrollView(
+            const SizedBox(height: 8),
+            const SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  HourlyForecastItem("10:00", Icons.cloud, "68°F"),
-                  HourlyForecastItem("12:00", Icons.wb_sunny, "75°F"),
-                  HourlyForecastItem("14:00", Icons.cloud_queue, "73°F"),
-                  HourlyForecastItem("16:00", Icons.wb_cloudy, "70°F"),
-                  HourlyForecastItem("18:00", Icons.nights_stay, "65°F"),
+                  HourlyForecastItem(
+                    time: '00:00',
+                    icon: Icons.cloud,
+                    temperature: '301.22',
+                  ),
+                  HourlyForecastItem(
+                    time: '03:00',
+                    icon: Icons.sunny,
+                    temperature: '300.52',
+                  ),
+                  HourlyForecastItem(
+                    time: '06:00',
+                    icon: Icons.cloud,
+                    temperature: '302.22',
+                  ),
+                  HourlyForecastItem(
+                    time: '09:00',
+                    icon: Icons.sunny,
+                    temperature: '300.12',
+                  ),
+                  HourlyForecastItem(
+                    time: '12:00',
+                    icon: Icons.cloud,
+                    temperature: '304.12',
+                  ),
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            // Additional Information cards placeholder
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Additional Information",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+            const Text(
+              'Additional Information',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
-
-            // Fix: Added children to Row for additional info
-            Row(
+            const SizedBox(height: 8),
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                getValue(Icons.water_drop, "Humidity", "60%"),
-                getValue(Icons.air, "Wind Speed", "15 km/h"),
-                getValue(Icons.thermostat, "Pressure", "1013 hPa"),
+                AdditionalInfoItem(
+                  icon: Icons.water_drop,
+                  label: 'Humdity',
+                  value: '91',
+                ),
+                AdditionalInfoItem(
+                  icon: Icons.air,
+                  label: 'Wind Speed',
+                  value: '7.5',
+                ),
+                AdditionalInfoItem(
+                  icon: Icons.waves_outlined,
+                  label: 'Pressure',
+                  value: '1000',
+                ),
               ],
             ),
           ],
